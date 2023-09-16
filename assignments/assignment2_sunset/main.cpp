@@ -12,17 +12,23 @@
 
 unsigned int createShader(GLenum shaderType, const char* sourceCode);
 unsigned int createShaderProgram(const char* vertexShaderSource, const char* fragmentShaderSource);
-unsigned int createVAO(float* vertexData, int numVertices);
+unsigned int createVAO(float* vertexData, int numVertices, unsigned int* indicesData, int numIndices);
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 
 const int SCREEN_WIDTH = 1080;
 const int SCREEN_HEIGHT = 720;
 
-float vertices[9] = {
+float vertices[12] = {
 	//x   //y  //z   
-	-0.5, -0.5, 0.0, 
-	 0.5, -0.5, 0.0,
-	 0.0,  0.5, 0.0 
+	-1.0, -1.0, 0.0, 
+	 1.0, -1.0, 0.0,
+	 1.0,  1.0, 0.0,
+	-1.0,  1.0, 0.0
+};
+
+unsigned int indices[6] = {
+	0, 1, 2, //tri 1
+	2, 4, 0  //tri 2
 };
 
 float triangleColor[3] = { 1.0f, 0.5f, 0.0f };
@@ -55,13 +61,10 @@ int main() {
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init();
 
-	std::string vertexShaderSource = ilgl::loadShaderSourceFromFile("assets/vertexShader.vert");
-	std::string fragmentShaderSource = ilgl::loadShaderSourceFromFile("assets/fragmentShader.frag");
+	ilgl::Shader shader ("assets/vertexShader.vert", "assets/fragmentShader.frag");
+	unsigned int vao = createVAO(vertices, 4, indices, 6);
 
-	unsigned int shader = ilgl::createShaderProgram(vertexShaderSource.c_str(), fragmentShaderSource.c_str());
-	unsigned int vao = createVAO(vertices, 3);
-
-	glUseProgram(shader);
+	shader.use();
 	glBindVertexArray(vao);
 
 	while (!glfwWindowShouldClose(window)) {
@@ -70,10 +73,10 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		//Set uniforms
-		glUniform3f(glGetUniformLocation(shader, "_Color"), triangleColor[0], triangleColor[1], triangleColor[2]);
-		glUniform1f(glGetUniformLocation(shader,"_Brightness"), triangleBrightness);
+		shader.setVec3("_Color", triangleColor[0], triangleColor[1], triangleColor[2]);
+		shader.setFloat("_Brightness", triangleBrightness);
 
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 
 		//Render UI
 		{
@@ -99,12 +102,17 @@ int main() {
 	printf("Shutting down...");
 }
 
-unsigned int createVAO(float* vertexData, int numVertices) {
+unsigned int createVAO(float* vertexData, int numVertices, unsigned int* indicesData, int numIndices) {
 	unsigned int vao;
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
-	//Define a new buffer id
+	unsigned int ebo;
+	glGenBuffers(1, &ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * numIndices, indicesData, GL_STATIC_DRAW);
+
+	////Define a new buffer id
 	unsigned int vbo;
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);

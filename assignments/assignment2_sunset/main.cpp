@@ -12,23 +12,29 @@
 
 unsigned int createShader(GLenum shaderType, const char* sourceCode);
 unsigned int createShaderProgram(const char* vertexShaderSource, const char* fragmentShaderSource);
-unsigned int createVAO(float* vertexData, int numVertices, unsigned int* indicesData, int numIndices);
+unsigned int createVAO(unsigned int* vertexData, int numVertices, unsigned int* indicesData, int numIndices);
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 
 const int SCREEN_WIDTH = 1080;
 const int SCREEN_HEIGHT = 720;
 
-float vertices[12] = {
-	//x   //y  //z   
-	-1.0, -1.0, 0.0, 
-	 1.0, -1.0, 0.0,
-	 1.0,  1.0, 0.0,
-	-1.0,  1.0, 0.0
+struct Vertex
+{
+	float x, y, z;
+	float u, v;
+};
+
+Vertex vertices[4] = {
+	   //x   //y  //z  //u  //v
+	{ -1.0, -1.0, 0.0, 0.0, 0.0 },
+	{  1.0, -1.0, 0.0, 1.0, 0.0 },
+	{  1.0,  1.0, 0.0, 1.0, 1.0 },
+	{ -1.0,  1.0, 0.0, 0.0, 1.0 }
 };
 
 unsigned int indices[6] = {
 	0, 1, 2, //tri 1
-	2, 4, 0  //tri 2
+	2, 3, 0  //tri 2
 };
 
 float triangleColor[3] = { 1.0f, 0.5f, 0.0f };
@@ -62,7 +68,7 @@ int main() {
 	ImGui_ImplOpenGL3_Init();
 
 	ilgl::Shader shader ("assets/vertexShader.vert", "assets/fragmentShader.frag");
-	unsigned int vao = createVAO(vertices, 4, indices, 6);
+	unsigned int vao = createVAO((unsigned int*)vertices, 4, indices, 6);
 
 	shader.use();
 	glBindVertexArray(vao);
@@ -102,7 +108,7 @@ int main() {
 	printf("Shutting down...");
 }
 
-unsigned int createVAO(float* vertexData, int numVertices, unsigned int* indicesData, int numIndices) {
+unsigned int createVAO(unsigned int* vertexData, int numVertices, unsigned int* indicesData, int numIndices) {
 	unsigned int vao;
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
@@ -117,11 +123,15 @@ unsigned int createVAO(float* vertexData, int numVertices, unsigned int* indices
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	//Allocate space for + send vertex data to GPU.
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * numVertices * 3, vertexData, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * numVertices * 5, vertexData, GL_STATIC_DRAW);
 
 	//Position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (const void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)offsetof(Vertex,x));
 	glEnableVertexAttribArray(0);
+
+	//UV attribute
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)(offsetof(Vertex, u)));
+	glEnableVertexAttribArray(1);
 
 	return vao;
 }

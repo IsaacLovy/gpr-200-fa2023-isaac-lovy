@@ -37,8 +37,13 @@ unsigned int indices[6] = {
 	2, 3, 0  //tri 2
 };
 
-float triangleColor[3] = { 1.0f, 0.5f, 0.0f };
-float triangleBrightness = 1.0f;
+float skyColor[3] = { 0.37, 0.81, 0.95 };
+float groundColor[3] = { 0.87, 0.52, 0 };
+float bgMixColor[3] = { 0.2,0,0.2 };
+float sunColor[4] = { 1.0, .78, 0.06, 1.0 };
+float skyLineColor[3] = { 0,0,0 };
+float sunRadius = 0.35f;
+float timeScale = 0.5;
 bool showImGUIDemoWindow = true;
 
 int main() {
@@ -79,8 +84,15 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		//Set uniforms
-		shader.setVec3("_Color", triangleColor[0], triangleColor[1], triangleColor[2]);
-		shader.setFloat("_Brightness", triangleBrightness);
+		shader.setVec2("_WindowSize", SCREEN_WIDTH, SCREEN_HEIGHT);
+		shader.setFloat("_Time", glfwGetTime());
+		shader.setFloat("_TimeScale", timeScale);
+		shader.setVec3("_SkyCol", skyColor[0], skyColor[1], skyColor[2]);
+		shader.setVec3("_GroundCol", groundColor[0], groundColor[1], groundColor[2]);
+		shader.setVec3("_BGMixCol", bgMixColor[0], bgMixColor[1], bgMixColor[2]);
+		shader.setVec4("_SunCol", sunColor[0], sunColor[1], sunColor[2], sunColor[3]);
+		shader.setVec3("_SkylineCol", skyLineColor[0], skyLineColor[1], skyLineColor[2]);
+		shader.setFloat("_SunRadius", sunRadius);
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 
@@ -92,8 +104,12 @@ int main() {
 
 			ImGui::Begin("Settings");
 			ImGui::Checkbox("Show Demo Window", &showImGUIDemoWindow);
-			ImGui::ColorEdit3("Color", triangleColor);
-			ImGui::SliderFloat("Brightness", &triangleBrightness, 0.0f, 1.0f);
+			ImGui::ColorEdit3("Sky Color", skyColor);
+			ImGui::ColorEdit3("Ground Color", groundColor);
+			ImGui::ColorEdit4("Sun Color", sunColor);
+			ImGui::ColorEdit3("skyline Color", skyLineColor);
+			ImGui::SliderFloat("Sun Radius", &sunRadius, 0.0f, 1.0f);
+			ImGui::DragFloat("Time Scale", &timeScale, 0.25f);
 			ImGui::End();
 			if (showImGUIDemoWindow) {
 				ImGui::ShowDemoWindow(&showImGUIDemoWindow);

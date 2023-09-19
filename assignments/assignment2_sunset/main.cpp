@@ -41,8 +41,9 @@ float skyColor[3] = { 0.37, 0.81, 0.95 };
 float groundColor[3] = { 0.87, 0.52, 0 };
 float bgMixColor[3] = { 0.2,0,0.2 };
 float sunColor[4] = { 1.0, .78, 0.06, 1.0 };
-float skyLineColor[3] = { 0,0,0 };
-float sunRadius = 0.35f;
+float skyLineColor[3] = {0.052f, 0.030f, 0.078f};
+float sunRadius = 0.35f; 
+float sunBlur = 0.05;
 float timeScale = 0.5;
 bool showImGUIDemoWindow = true;
 
@@ -93,6 +94,7 @@ int main() {
 		shader.setVec4("_SunCol", sunColor[0], sunColor[1], sunColor[2], sunColor[3]);
 		shader.setVec3("_SkylineCol", skyLineColor[0], skyLineColor[1], skyLineColor[2]);
 		shader.setFloat("_SunRadius", sunRadius);
+		shader.setFloat("_SunBlur", sunBlur);
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 
@@ -107,8 +109,10 @@ int main() {
 			ImGui::ColorEdit3("Sky Color", skyColor);
 			ImGui::ColorEdit3("Ground Color", groundColor);
 			ImGui::ColorEdit4("Sun Color", sunColor);
+			ImGui::ColorEdit3("Night Color", bgMixColor);
 			ImGui::ColorEdit3("skyline Color", skyLineColor);
 			ImGui::SliderFloat("Sun Radius", &sunRadius, 0.0f, 1.0f);
+			ImGui::DragFloat("Sun Blur", &sunBlur, 0.01f);
 			ImGui::DragFloat("Time Scale", &timeScale, 0.25f);
 			ImGui::End();
 			if (showImGUIDemoWindow) {

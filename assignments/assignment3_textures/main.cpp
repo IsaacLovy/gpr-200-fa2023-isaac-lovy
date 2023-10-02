@@ -10,6 +10,8 @@
 
 #include <ew/shader.h>
 
+#include <ILGL/texture.h>
+
 struct Vertex {
 	float x, y, z;
 	float u, v;
@@ -57,6 +59,13 @@ int main() {
 	ImGui::CreateContext();
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init();
+
+
+
+	ilgl::Texture2DImportSettings brickSettings = ilgl::Texture2DImportSettings(true, true, false, false, false);
+	unsigned int brickTexture = ilgl::loadTexture("assets/bricks.png", brickSettings);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, brickTexture);
 
 	ew::Shader shader("assets/vertexShader.vert", "assets/fragmentShader.frag");
 

@@ -60,17 +60,29 @@ int main() {
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init();
 
+	glEnable(GL_BLEND);
 
+	//Load ALL textures
+	ilgl::Texture2DImportSettings bgSettings = ilgl::Texture2DImportSettings(true, true, true, true, true);
+	ilgl::Texture2DImportSettings charSettings = ilgl::Texture2DImportSettings(false, false, false, false, false);
+	unsigned int dirtTexture = ilgl::loadTexture("assets/dirt.png", bgSettings);
+	unsigned int noiseTexture = ilgl::loadTexture("assets/noise.png", bgSettings);
+	unsigned int charTexture = ilgl::loadTexture("assets/wizard.png", charSettings);
 
-	ilgl::Texture2DImportSettings brickSettings = ilgl::Texture2DImportSettings(true, true, false, false, false);
-	unsigned int brickTexture = ilgl::loadTexture("assets/bricks.png", brickSettings);
+	//bind textures to slots
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, brickTexture);
+	glBindTexture(GL_TEXTURE_2D, dirtTexture);
 
-	ew::Shader shader("assets/vertexShader.vert", "assets/fragmentShader.frag");
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, noiseTexture);
+
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, charTexture);
+
+	ew::Shader backgroundShader("assets/background.vert", "assets/background.frag");
+	ew::Shader characterShader("assets/character.vert", "assets/character.frag");
 
 	unsigned int quadVAO = createVAO(vertices, 4, indices, 6);
-
 	glBindVertexArray(quadVAO);
 
 	while (!glfwWindowShouldClose(window)) {
@@ -79,8 +91,23 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		//Set uniforms
-		shader.use();
+		backgroundShader.use();
+		backgroundShader.setInt("_Texture", 0);
+		backgroundShader.setInt("_Overlay", 1);
+		backgroundShader.setVec4("_OverlayColor", 0.28, 0.81, 0.96, 1.0);
+		backgroundShader.setFloat("_Time", glfwGetTime());
+		backgroundShader.setFloat("_TimeScale", 0.25f);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
 
+		characterShader.use();
+		characterShader.setInt("_Texture", 2);
+		characterShader.setFloat("_Scale", 0.3f);
+		characterShader.setVec2("_Center", 0, 0);
+		characterShader.setFloat("_Radius", 0.5f);
+		characterShader.setFloat("_Time", glfwGetTime());
+		characterShader.setFloat("_TimeScale", 0.6f);
+		characterShader.setFloat("_Alpha", 0.25f);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
 
 		//Render UI

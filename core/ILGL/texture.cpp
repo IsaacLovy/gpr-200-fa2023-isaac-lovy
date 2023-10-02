@@ -44,12 +44,12 @@ namespace ilgl
 		glGenTextures(1, &texture);
 		glBindTexture(GL_TEXTURE_2D, texture);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-
 		glTexParameteri(GL_TEXTURE_2D, importSettings.getWrap_S(), GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, importSettings.getWrap_T(), GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, importSettings.getminFilter());
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, importSettings.getmagFilter());
+
+		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 
 		glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -84,7 +84,7 @@ namespace ilgl
 
 	GLenum ilgl::Texture2DImportSettings::getminFilter()
 	{
-		return minLinearMipMap ? (minLinear ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR_MIPMAP_NEAREST) : (minLinear ? GL_NEAREST_MIPMAP_LINEAR : GL_NEAREST_MIPMAP_NEAREST);
+		return minLinearMipMap ? (minLinear ?  GL_LINEAR_MIPMAP_NEAREST : GL_LINEAR_MIPMAP_LINEAR) : (minLinear ? GL_NEAREST_MIPMAP_NEAREST : GL_NEAREST_MIPMAP_LINEAR);
 	}
 
 }

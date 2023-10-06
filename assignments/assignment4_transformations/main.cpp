@@ -8,7 +8,9 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
-#include <ew/shader.h>
+#include <ILGL/shader.h>
+#include <ILGL/transformations.h>
+
 #include <ew/ewMath/vec3.h>
 #include <ew/procGen.h>
 
@@ -51,11 +53,26 @@ int main() {
 	//Depth testing - required for depth sorting!
 	glEnable(GL_DEPTH_TEST);
 
-	ew::Shader shader("assets/vertexShader.vert", "assets/fragmentShader.frag");
+	ilgl::Shader shader("assets/vertexShader.vert", "assets/fragmentShader.frag");
 	
 	//Cube mesh
 	ew::Mesh cubeMesh(ew::createCube(0.5f));
-	
+
+	//create transform
+	ilgl::Transform transforms[4];
+
+	//create and initialize all the transforms
+	for (int i = 0; i < 4; i++)
+	{
+		transforms[i] = ilgl::Transform();
+	}
+
+	//Set the cubes to start in the four corners
+	transforms[0].position = ew::Vec3(-0.5f, -0.5f, 0);
+	transforms[1].position = ew::Vec3(0.5f, -0.5f, 0);
+	transforms[2].position = ew::Vec3(0.5f, 0.5f, 0);
+	transforms[3].position = ew::Vec3(-0.5f, 0.5f, 0);
+
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 		glClearColor(0.3f, 0.4f, 0.9f, 1.0f);
@@ -65,18 +82,29 @@ int main() {
 		//Set uniforms
 		shader.use();
 
-		//TODO: Set model matrix uniform
-
-		cubeMesh.draw();
+		//render the same cube once per transform
+		for (int i = 0; i < 4; i++)
+		{
+			shader.setMat4("_Model", transforms[i].getModelMatrix());
+			cubeMesh.draw();
+		}
 
 		//Render UI
 		{
 			ImGui_ImplGlfw_NewFrame();
 			ImGui_ImplOpenGL3_NewFrame();
 			ImGui::NewFrame();
-
-			ImGui::Begin("Transform");
-			ImGui::End();
+			for (int i = 0; i < 4; i++) 
+			{
+				ImGui::PushID(i);
+				if (ImGui::CollapsingHeader("Transform"))
+				{
+					ImGui::DragFloat3("Position", &transforms[i].position.x, 0.05f);
+					ImGui::DragFloat3("Rotation", &transforms[i].rotation.x, 1.0f);
+					ImGui::DragFloat3("Scale", &transforms[i].scale.x, 0.05f);
+				}
+				ImGui::PopID();
+			}
 
 			ImGui::Render();
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

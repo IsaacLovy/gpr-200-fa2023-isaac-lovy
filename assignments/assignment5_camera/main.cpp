@@ -11,6 +11,7 @@
 #include <ILGL/shader.h>
 #include <ew/procGen.h>
 #include <ILGL/transformations.h>
+#include <ILGL/camera.h>
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 
@@ -66,6 +67,16 @@ int main() {
 		cubeTransforms[i].position.y = i / (NUM_CUBES / 2) - 0.5;
 	}
 
+	ilgl::Camera eye;
+	eye.position = (0, 0, 5);
+	eye.target = (0, 0, 0);
+	eye.fov = 60;
+	eye.aspectRatio = 4.0f / 3.0f;
+	eye.orthoSize = 6;
+	eye.nearPlane = 0.1f;
+	eye.farPlane = 100;
+	eye.orthographic = true;
+
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 		glClearColor(0.3f, 0.4f, 0.9f, 1.0f);
@@ -75,11 +86,10 @@ int main() {
 		//Set uniforms
 		shader.use();
 
-		//TODO: Set model matrix uniform
 		for (size_t i = 0; i < NUM_CUBES; i++)
 		{
-			//Construct model matrix
-			shader.setMat4("_Model", cubeTransforms[i].getModelMatrix());
+			//Construct MVP Matrix
+			shader.setMat4("_MVP", eye.ProjectionMatrix() * eye.ViewMatrix() * cubeTransforms[i].getModelMatrix());
 			cubeMesh.draw();
 		}
 
@@ -102,6 +112,14 @@ int main() {
 				ImGui::PopID();
 			}
 			ImGui::Text("Camera");
+			ImGui::DragFloat3("Position", &eye.position.x, 0.05f);
+			ImGui::DragFloat3("Target", &eye.target.x, 0.05f);
+			ImGui::DragFloat("FOV", &eye.fov, .05f);
+			ImGui::DragFloat("Near Plane", &eye.nearPlane, .0001f);
+			ImGui::DragFloat("Far Plane", &eye.farPlane, 1.0f);
+			ImGui::Checkbox("Ortho", &eye.orthographic);
+			ImGui::DragFloat("Othographic Height", &eye.orthoSize, .05f);
+
 			ImGui::End();
 			
 			ImGui::Render();

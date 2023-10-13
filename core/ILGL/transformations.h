@@ -16,6 +16,49 @@ namespace ilgl
 		};
 	}
 
+	//Creates a right handed view space
+	//eye = eye (camera) position
+	//target = position to look at
+	//up = up axis, usually(0,1,0)
+	inline ew::Mat4 LookAt(ew::Vec3 eye, ew::Vec3 target, ew::Vec3 up) {
+		ew::Vec3 f = ew::Normalize(eye - target);
+		ew::Vec3 r = ew::Normalize(ew::Cross(up, f));
+		ew::Vec3 u = ew::Normalize(ew::Cross(f, r));
+
+		return ew::Mat4(
+			r.x, r.y, r.z, -ew::Dot(r, eye),
+			u.x, u.y, u.z, -ew::Dot(u, eye),
+			f.x, f.y, f.z, -ew::Dot(f, eye),
+			0, 0, 0, 1
+			);
+	};
+	
+	//Orthographic projection
+	inline ew::Mat4 Orthographic(float height, float aspect, float near, float far) {
+
+		float t = height / 2.0f;
+		float b = -t;
+		float r = height * aspect * 0.5f;
+		float l = -r;
+		return ew::Mat4(
+			2.0f / (r - l), 0, 0, -(r + l) / (r - l),
+			0, 2.0f / (t - b), 0, -(t + b) / (t - b),
+			0, 0, -2.0f / (far - near), -(far + near) / (far - near),
+			0,0,0,1
+			);
+	};
+	
+	//Perspective projection
+	//fov = vertical aspect ratio (radians)
+	inline ew::Mat4 Perspective(float fov, float aspect, float near, float far) {
+		return ew::Mat4(
+			1.0f / (tan(fov / 2.0f) * aspect), 0, 0, 0,
+			0, 1.0f / tan(fov / 2.0f), 0, 0,
+			0, 0, (near + far) / (near - far), (2.0f * far * near) / (near - far),
+			0, 0, -1, 0
+		);
+	};
+
 	//scale xyz
 	inline ew::Mat4 Scale(ew::Vec3 s)
 	{

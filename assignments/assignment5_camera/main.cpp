@@ -68,10 +68,10 @@ int main() {
 	}
 
 	ilgl::Camera eye;
-	eye.position = (0, 0, 5);
-	eye.target = (0, 0, 0);
+	eye.position = ew::Vec3(0, 0, 5);
+	eye.target = ew::Vec3(0, 0, 0);
 	eye.fov = 60;
-	eye.aspectRatio = 4.0f / 3.0f;
+	eye.aspectRatio = (float) SCREEN_WIDTH / (float) SCREEN_HEIGHT;
 	eye.orthoSize = 6;
 	eye.nearPlane = 0.1f;
 	eye.farPlane = 100;
@@ -118,7 +118,7 @@ int main() {
 			ImGui::DragFloat("Near Plane", &eye.nearPlane, .0001f);
 			ImGui::DragFloat("Far Plane", &eye.farPlane, 1.0f);
 			ImGui::Checkbox("Ortho", &eye.orthographic);
-			ImGui::DragFloat("Othographic Height", &eye.orthoSize, .05f);
+			ImGui::DragFloat("Orthographic Height", &eye.orthoSize, .05f);
 
 			ImGui::End();
 			

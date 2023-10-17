@@ -22,6 +22,7 @@ const int SCREEN_HEIGHT = 720;
 const int NUM_CUBES = 4;
 ilgl::Transform cubeTransforms[NUM_CUBES];
 
+
 int main() {
 	printf("Initializing...");
 	if (!glfwInit()) {
@@ -70,15 +71,24 @@ int main() {
 	ilgl::Camera eye;
 	eye.position = ew::Vec3(0, 0, 5);
 	eye.target = ew::Vec3(0, 0, 0);
-	eye.fov = 60;
+	eye.fov = 60.0f;
 	eye.aspectRatio = (float) SCREEN_WIDTH / (float) SCREEN_HEIGHT;
 	eye.orthoSize = 6;
 	eye.nearPlane = 0.1f;
 	eye.farPlane = 100;
-	eye.orthographic = true;
+	eye.orthographic = false;
+
+	float prevTime = 0;
 
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
+
+		float time = (float)glfwGetTime();
+		float deltaTime = time - prevTime;
+		prevTime = time;
+
+		eye.moveCamera(window, deltaTime);
+
 		glClearColor(0.3f, 0.4f, 0.9f, 1.0f);
 		//Clear both color buffer AND depth buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -106,7 +116,7 @@ int main() {
 				ImGui::PushID(i);
 				if (ImGui::CollapsingHeader("Transform")) {
 					ImGui::DragFloat3("Position", &cubeTransforms[i].position.x, 0.05f);
-					ImGui::DragFloat3("Rotation", &cubeTransforms[i].rotation.x, 0.05f);
+					ImGui::DragFloat3("Rotation", &cubeTransforms[i].rotation.x, 0.5f);
 					ImGui::DragFloat3("Scale", &cubeTransforms[i].scale.x, 0.05f);
 				}
 				ImGui::PopID();
@@ -135,4 +145,3 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
 }
-

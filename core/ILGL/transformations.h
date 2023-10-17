@@ -1,4 +1,5 @@
 #pragma once
+#include"../ew/ewMath/ewMath.h"
 #include "../ew/ewMath/mat4.h"
 #include "../ew/ewMath/vec3.h"
 #include <math.h>
@@ -130,7 +131,14 @@ namespace ilgl
 
 		ew::Mat4 getModelMatrix() const
 		{
-			return Translate(position) * RotateZXY(rotation) * Scale(scale);
+			//convert degree input to radians
+			ew::Vec3 radRotation = ew::Vec3(rotation.x * ew::DEG2RAD, rotation.y * ew::DEG2RAD, rotation.z * ew::DEG2RAD);
+			return Translate(position) * RotateZXY(radRotation) * Scale(scale);
 		}
 	};
+
+	inline float clamp(float value, float a, float b)
+	{
+		return fmin(fmax(value, a), b);
+	}
 }

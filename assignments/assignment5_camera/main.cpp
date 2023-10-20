@@ -23,6 +23,19 @@ const int NUM_CUBES = 4;
 ilgl::Transform cubeTransforms[NUM_CUBES];
 
 
+void resetCamera(ilgl::Camera* eye)
+{
+	eye->position = ew::Vec3(0, 0, 5);
+	eye->target = ew::Vec3(0, 0, 0);
+	eye->fov = 60.0f;
+	eye->aspectRatio = (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT;
+	eye->orthoSize = 6;
+	eye->nearPlane = 0.1f;
+	eye->farPlane = 100;
+	eye->orthographic = false;
+	eye->controls = ilgl::CameraControls();
+}
+
 int main() {
 	printf("Initializing...");
 	if (!glfwInit()) {
@@ -69,14 +82,7 @@ int main() {
 	}
 
 	ilgl::Camera eye;
-	eye.position = ew::Vec3(0, 0, 5);
-	eye.target = ew::Vec3(0, 0, 0);
-	eye.fov = 60.0f;
-	eye.aspectRatio = (float) SCREEN_WIDTH / (float) SCREEN_HEIGHT;
-	eye.orthoSize = 6;
-	eye.nearPlane = 0.1f;
-	eye.farPlane = 100;
-	eye.orthographic = false;
+	resetCamera(&eye);
 
 	float prevTime = 0;
 
@@ -129,6 +135,11 @@ int main() {
 			ImGui::DragFloat("Far Plane", &eye.farPlane, 1.0f);
 			ImGui::Checkbox("Ortho", &eye.orthographic);
 			ImGui::DragFloat("Orthographic Height", &eye.orthoSize, .05f);
+
+			if (ImGui::Button("Reset Camera", ImVec2(75, 30)))
+			{
+				resetCamera(&eye);
+			}
 
 			ImGui::End();
 			

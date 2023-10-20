@@ -22,7 +22,6 @@ ew::Vec3 ilgl::Camera::getCameraForward(float pitch, float yaw)
 	return ew::Vec3(sin(yaw) * cos(pitch), sin(pitch), -cos(yaw) * cos(pitch));
 }
 
-
 void ilgl::Camera::moveCamera(GLFWwindow* window, float deltaTime)
 {
 	if (!glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2))

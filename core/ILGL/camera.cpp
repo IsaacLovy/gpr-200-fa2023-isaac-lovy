@@ -19,7 +19,7 @@ ew::Mat4 ilgl::Camera::ProjectionMatrix()
 
 ew::Vec3 ilgl::Camera::getCameraForward(float pitch, float yaw)
 {
-	return ew::Vec3(cos(yaw) * cos(pitch), sin(pitch), sin(yaw) * cos(pitch));
+	return ew::Vec3(sin(yaw) * cos(pitch), sin(pitch), -cos(yaw) * cos(pitch));
 }
 
 
@@ -82,4 +82,6 @@ void ilgl::Camera::moveCamera(GLFWwindow* window, float deltaTime)
 	{
 		position -= u * controls.moveSpeed * deltaTime;
 	}
+
+	target = position + forward;
 }

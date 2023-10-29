@@ -15,6 +15,8 @@
 #include <ew/camera.h>
 #include <ew/cameraController.h>
 
+#include "ILGL/procGen.h"
+
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void resetCamera(ew::Camera& camera, ew::CameraController& cameraController);
 
@@ -82,8 +84,19 @@ int main() {
 	ew::MeshData cubeMeshData = ew::createCube(0.5f);
 	ew::Mesh cubeMesh(cubeMeshData);
 
+	ew::MeshData planeMeshData = ilgl::createPlane(1.0f,1.0f,2);
+	ew::Mesh planeMesh(planeMeshData);
+
+	ew::MeshData cylinderMeshData = ilgl::createCylinder(1.0f, 0.5f, 16);
+	ew::Mesh cylinderMesh(cylinderMeshData);
+
 	//Initialize transforms
 	ew::Transform cubeTransform;
+	cubeTransform.position = ew::Vec3(-3, 0, 0);
+	ew::Transform planeTransform;
+	planeTransform.position = ew::Vec3(-2, -0.5f, -0.5f);
+	ew::Transform cylinderTransform;
+	cylinderTransform.position = ew::Vec3(0, 0, 0);
 
 	resetCamera(camera,cameraController);
 
@@ -120,6 +133,13 @@ int main() {
 		//Draw cube
 		shader.setMat4("_Model", cubeTransform.getModelMatrix());
 		cubeMesh.draw((ew::DrawMode)appSettings.drawAsPoints);
+
+		//draw plane
+		shader.setMat4("_Model", planeTransform.getModelMatrix());
+		planeMesh.draw((ew::DrawMode)appSettings.drawAsPoints);
+
+		shader.setMat4("_Model", cylinderTransform.getModelMatrix());
+		cylinderMesh.draw((ew::DrawMode)appSettings.drawAsPoints);
 
 		//Render UI
 		{

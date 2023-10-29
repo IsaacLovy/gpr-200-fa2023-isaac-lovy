@@ -105,7 +105,7 @@ namespace ilgl
 		);
 	}
 	
-	//do the othe rotate funtions in ZXY order in radians
+	//do the othe rotate functions in ZXY order in radians
 	inline ew::Mat4 RotateZXY(ew::Vec3 r)
 	{
 		return RotateY(r.y) * RotateX(r.x) * RotateZ(r.z);

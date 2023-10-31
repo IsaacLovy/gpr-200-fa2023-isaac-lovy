@@ -50,6 +50,78 @@ ew::MeshData ilgl::createPlane(float width, float height, int subdivisions)
 	return mesh;
 }
 
+ew::MeshData ilgl::createSphere(float radius, int numSegments)
+{
+	ew::MeshData mesh;
+
+	float thetaStep = 2 * ew::PI / numSegments;
+	float phiStep = ew::PI / numSegments;
+
+	for (int row = 0; row <= numSegments; row++)
+	{
+		float phi = row * phiStep;
+
+		for (int col = 0; col <= numSegments; col++)
+		{
+
+			ew::Vertex v;
+
+			float theta = col * thetaStep;
+
+			v.pos.x = radius * sin(phi) * cos(theta);
+			v.pos.y = radius * cos(phi);
+			v.pos.z = radius * sin(phi) * sin(theta);
+
+			v.normal = ew::Normalize(v.pos - ew::Vec3(0, 0, 0));
+
+			v.uv.x = theta / (2 * ew::PI);
+			v.uv.y = 1 - (phi / ew::PI);
+
+			mesh.vertices.push_back(v);
+		}
+	}
+	
+	//Top Cap
+	float poleStart = 0;
+	int sidestart = numSegments + 1;
+	for (int i = 0; i < numSegments; i++)
+	{
+		mesh.indices.push_back(sidestart + i);
+		mesh.indices.push_back(poleStart + i);
+		mesh.indices.push_back(sidestart + i + 1);
+	}
+
+	//sides
+	int columns = numSegments + 1;
+	for (int row = 1; row < numSegments - 1; row++)
+	{
+		for (int col = 0; col < numSegments; col++)
+		{
+			int start = row * columns + col;
+			mesh.indices.push_back(start);
+			mesh.indices.push_back(start + 1);
+			mesh.indices.push_back(start + columns);
+
+			mesh.indices.push_back(start + columns);
+			mesh.indices.push_back(start + 1);
+			mesh.indices.push_back(start + columns + 1);
+
+		}
+	}
+
+	//bottom cap
+	poleStart = mesh.vertices.size() - numSegments - 1;
+	sidestart = poleStart - numSegments - 1;
+	for (int i = 0; i < numSegments; i++)
+	{
+		mesh.indices.push_back(sidestart + i);
+		mesh.indices.push_back(sidestart + i + 1);
+		mesh.indices.push_back(poleStart + i);
+	}
+
+	return mesh;
+}
+
 ew::MeshData ilgl::createCylinder(float height, float radius, int numSegments)
 {
 	ew::MeshData mesh;
@@ -59,14 +131,14 @@ ew::MeshData ilgl::createCylinder(float height, float radius, int numSegments)
 	ew::Vertex topVertex;
 	topVertex.pos = ew::Vec3(0, topY, 0);
 	topVertex.uv = ew::Vec2(0.5f, 0.5f);
-	topVertex.normal = ew::Vec3(0, -1, 0);
+	topVertex.normal = ew::Vec3(0, 1, 0);
 
 	mesh.vertices.push_back(topVertex);
 
 	int topUpStart = createCylinderRing(height, topY, radius, numSegments, &mesh, true, ew::Vec3(0, 1, 0));
 	int topSideStart = createCylinderRing(height, topY, radius, numSegments, &mesh, false);
 	int bottomSideStart = createCylinderRing(height, bottomY, radius, numSegments, &mesh, false);
-	int bottomDownStart = createCylinderRing(height, bottomY, radius, numSegments, &mesh, true, ew::Vec3(0, 1, 0));
+	int bottomDownStart = createCylinderRing(height, bottomY, radius, numSegments, &mesh, true, ew::Vec3(0, -1, 0));
 
 	ew::Vertex bottomVertex;
 	bottomVertex.pos = ew::Vec3(0, bottomY, 0);

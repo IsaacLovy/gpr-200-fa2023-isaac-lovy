@@ -90,13 +90,18 @@ int main() {
 	ew::MeshData cylinderMeshData = ilgl::createCylinder(1.0f, 0.5f, 16);
 	ew::Mesh cylinderMesh(cylinderMeshData);
 
+	ew::MeshData sphereMeshData = ilgl::createSphere(1, 24);
+	ew::Mesh sphereMesh(sphereMeshData);
+
 	//Initialize transforms
 	ew::Transform cubeTransform;
 	cubeTransform.position = ew::Vec3(-3, 0, 0);
 	ew::Transform planeTransform;
-	planeTransform.position = ew::Vec3(-2, -0.5f, -0.5f);
+	planeTransform.position = ew::Vec3(-2, -0.5f, 0.5f);
 	ew::Transform cylinderTransform;
 	cylinderTransform.position = ew::Vec3(0, 0, 0);
+	ew::Transform sphereTransform;
+	sphereTransform.position = ew::Vec3(2, 0, 0);
 
 	resetCamera(camera,cameraController);
 
@@ -141,6 +146,9 @@ int main() {
 		shader.setMat4("_Model", cylinderTransform.getModelMatrix());
 		cylinderMesh.draw((ew::DrawMode)appSettings.drawAsPoints);
 
+		shader.setMat4("_Model", sphereTransform.getModelMatrix());
+		sphereMesh.draw((ew::DrawMode)appSettings.drawAsPoints);
+
 		//Render UI
 		{
 			ImGui_ImplGlfw_NewFrame();
@@ -183,6 +191,11 @@ int main() {
 				else
 					glDisable(GL_CULL_FACE);
 			}
+
+			if (ImGui::CollapsingHeader("Plane Settings"))
+			{
+			}
+
 			ImGui::End();
 			
 			ImGui::Render();

@@ -6,4 +6,6 @@ namespace ilgl {
 	ew::MeshData createCylinder(float height, float radius, int numSegments);
 	int createCylinderRing(float height, float yPos, float radius, int numSegments, ew::MeshData* mesh, bool oneNormal, ew::Vec3 normalDir = ew::Vec3(0, 1, 0));
 	ew::MeshData createPlane(float width, float height, int subdivisions);
+
+	ew::MeshData createTorus(int rings, int segments, float innerRadius, float outterRadius);
 }

@@ -50,6 +50,63 @@ ew::MeshData ilgl::createPlane(float width, float height, int subdivisions)
 	return mesh;
 }
 
+ew::MeshData ilgl::createTorus(int st, int sl, float innerRadius, float outerRadius)
+{
+	ew::MeshData mesh;
+
+	float phi = 0.0;
+	float phiStep = (2 * ew::PI) / (float)sl;
+
+	float theta = 0.0;
+	float thetaStep = (2 * ew::PI) / (float)st;
+
+	//Vertices
+	for (int stack = 0; stack <= st; stack++)
+	{
+		theta = thetaStep * stack;
+
+		for (int slice = 0; slice <= sl; slice++)
+		{
+			phi = phiStep * slice;
+
+			ew::Vertex v;
+			
+			v.pos.x = cos(theta) * (outerRadius + cos(phi) * innerRadius);
+			v.pos.y = sin(theta) * (outerRadius + cos(phi) * innerRadius);
+			v.pos.z = sin(phi) * innerRadius;
+
+			mesh.vertices.push_back(v);
+		}
+	}
+	
+	//Indices
+	for (int stack = 0; stack < st; stack++)
+	{
+		for (int slice = 0; slice <= sl; slice++)
+		{
+			//int i1 = stack + (slice * sl);
+			//int i2 = (stack + 1) + (slice * sl);
+			//int i3 = stack + ((slice + 1) * sl);
+			//int i4 = (stack + 1) + ((slice + 1) * sl);
+
+			int i1 = stack + (slice * sl);
+			int i2 = i1 + (slice * (sl + 1));
+			int i3 = 0;
+			int i4 = 0;
+
+			mesh.indices.push_back(i1);
+			mesh.indices.push_back(i3);
+			mesh.indices.push_back(i4);
+
+			mesh.indices.push_back(i1);
+			mesh.indices.push_back(i4);
+			mesh.indices.push_back(i2);
+		}
+	}
+
+	return mesh;
+}
+
 ew::MeshData ilgl::createSphere(float radius, int numSegments)
 {
 	ew::MeshData mesh;

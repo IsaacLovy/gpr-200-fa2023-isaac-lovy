@@ -93,8 +93,8 @@ int main() {
 	ew::MeshData sphereMeshData = ilgl::createSphere(1, 24);
 	ew::Mesh sphereMesh(sphereMeshData);
 
-	ew::MeshData torusMeshData = ilgl::createTorus(12, 8, 1, 5);
-	ew::Mesh torusMesh(torusMeshData);
+	//ew::MeshData torusMeshData = ilgl::createTorus(12, 8, 1, 5);
+	//ew::Mesh torusMesh(torusMeshData);
 
 	//Initialize transforms
 	ew::Transform cubeTransform;
@@ -106,8 +106,8 @@ int main() {
 	ew::Transform sphereTransform;
 	sphereTransform.position = ew::Vec3(2, 0, 0);
 
-	ew::Transform torusTransform;
-	torusTransform.position = ew::Vec3(0, 0, -5);
+	//ew::Transform torusTransform;
+	//torusTransform.position = ew::Vec3(0, 0, -5);
 
 	resetCamera(camera,cameraController);
 
@@ -155,8 +155,8 @@ int main() {
 		shader.setMat4("_Model", sphereTransform.getModelMatrix());
 		sphereMesh.draw((ew::DrawMode)appSettings.drawAsPoints);
 
-		shader.setMat4("_Model", torusTransform.getModelMatrix());
-		torusMesh.draw((ew::DrawMode)appSettings.drawAsPoints);
+		//shader.setMat4("_Model", torusTransform.getModelMatrix());
+		//torusMesh.draw((ew::DrawMode)appSettings.drawAsPoints);
 
 		//Render UI
 		{

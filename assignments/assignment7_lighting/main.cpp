@@ -27,6 +27,20 @@ ew::Vec3 bgColor = ew::Vec3(0.1f);
 ew::Camera camera;
 ew::CameraController cameraController;
 
+struct Light
+{
+	ew::Vec3 position;
+	ew::Vec3 color;
+};
+
+struct Material
+{
+	float ambientK;
+	float diffuseK;
+	float specular;
+	float shininess;
+};
+
 int main() {
 	printf("Initializing...");
 	if (!glfwInit()) {
@@ -61,6 +75,8 @@ int main() {
 	ew::Shader shader("assets/defaultLit.vert", "assets/defaultLit.frag");
 	unsigned int brickTexture = ew::loadTexture("assets/brick_color.jpg",GL_REPEAT,GL_LINEAR);
 
+	ew::Shader lightShader("assets/unlit.vert", "assets/unlit.frag");
+
 	//Create cube
 	ew::Mesh cubeMesh(ew::createCube(1.0f));
 	ew::Mesh planeMesh(ew::createPlane(5.0f, 5.0f, 10));
@@ -75,6 +91,20 @@ int main() {
 	planeTransform.position = ew::Vec3(0, -1.0, 0);
 	sphereTransform.position = ew::Vec3(-1.5f, 0.0f, 0.0f);
 	cylinderTransform.position = ew::Vec3(1.5f, 0.0f, 0.0f);
+
+	Material brickMaterial;
+	brickMaterial.ambientK = 0.05f;
+	brickMaterial.diffuseK = 0.75f;
+	brickMaterial.specular = 0.2f;
+	brickMaterial.shininess = 16;
+
+	Light lights[1];
+	ew::Transform lightTransforms[1];
+
+	lights[0].color = ew::Vec3(1, 1, 1);
+	lights[0].position = ew::Vec3(0, 5, 0);
+	lightTransforms[0].position = ew::Vec3(0, 5, 0);
+	lightTransforms[0].scale = ew::Vec3(0.3f, 0.3f, 0.3f);
 
 	resetCamera(camera,cameraController);
 
@@ -97,6 +127,15 @@ int main() {
 		glBindTexture(GL_TEXTURE_2D, brickTexture);
 		shader.setInt("_Texture", 0);
 		shader.setMat4("_ViewProjection", camera.ProjectionMatrix() * camera.ViewMatrix());
+		shader.setVec3("_CameraPos", camera.position);
+
+		shader.setVec3("_Lights[0].position", lights[0].position);
+		shader.setVec3("_Lights[0].color", lights[0].color);
+
+		shader.setFloat("_Shininess", brickMaterial.shininess);
+		shader.setFloat("_DiffuseK", brickMaterial.diffuseK);
+		shader.setFloat("_SpecularK", brickMaterial.specular);
+		shader.setFloat("_AmbientK", brickMaterial.ambientK);
 
 		//Draw shapes
 		shader.setMat4("_Model", cubeTransform.getModelMatrix());
@@ -112,6 +151,12 @@ int main() {
 		cylinderMesh.draw();
 
 		//TODO: Render point lights
+		lightShader.use();
+		lightShader.setMat4("_ViewProjection", camera.ProjectionMatrix()* camera.ViewMatrix());
+		lightShader.setVec3("_Color", lights[0].color);
+		
+		lightShader.setMat4("_Model", lightTransforms[0].getModelMatrix());
+		sphereMesh.draw();
 
 		//Render UI
 		{

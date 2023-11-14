@@ -98,13 +98,30 @@ int main() {
 	brickMaterial.specular = 0.2f;
 	brickMaterial.shininess = 16;
 
-	Light lights[1];
-	ew::Transform lightTransforms[1];
+	Light lights[4];
+	ew::Transform lightTransforms[4];
+
+	int numLights = 4;
 
 	lights[0].color = ew::Vec3(1, 1, 1);
-	lights[0].position = ew::Vec3(0, 5, 0);
-	lightTransforms[0].position = ew::Vec3(0, 5, 0);
+	lights[0].position = ew::Vec3(-5, 5, -5);
+	lightTransforms[0].position = ew::Vec3(-5, 5, -5);
 	lightTransforms[0].scale = ew::Vec3(0.3f, 0.3f, 0.3f);
+
+	lights[1].color = ew::Vec3(1, 1, 1);
+	lights[1].position = ew::Vec3(-5, 5, 5);
+	lightTransforms[1].position = ew::Vec3(-5, 5, 5);
+	lightTransforms[1].scale = ew::Vec3(0.3f, 0.3f, 0.3f);
+
+	lights[2].color = ew::Vec3(1, 1, 1);
+	lights[2].position = ew::Vec3(5, 5, 5);
+	lightTransforms[2].position = ew::Vec3(5, 5, 5);
+	lightTransforms[2].scale = ew::Vec3(0.3f, 0.3f, 0.3f);
+
+	lights[3].color = ew::Vec3(1, 1, 1);
+	lights[3].position = ew::Vec3(5, 5, -5);
+	lightTransforms[3].position = ew::Vec3(5, 5, -5);
+	lightTransforms[3].scale = ew::Vec3(0.3f, 0.3f, 0.3f);
 
 	resetCamera(camera,cameraController);
 
@@ -129,8 +146,13 @@ int main() {
 		shader.setMat4("_ViewProjection", camera.ProjectionMatrix() * camera.ViewMatrix());
 		shader.setVec3("_CameraPos", camera.position);
 
-		shader.setVec3("_Lights[0].position", lights[0].position);
-		shader.setVec3("_Lights[0].color", lights[0].color);
+		for (int i = 0; i < 4; i++)
+		{
+			shader.setVec3("_Lights[" + std::to_string(i) + "].position", lights[i].position);
+
+			if (i <= numLights) shader.setVec3("_Lights[" + std::to_string(i) + "].color", lights[i].color);
+			else shader.setVec3("_Lights[" + std::to_string(i) + "].color", ew::Vec3(0,0,0));
+		}
 
 		shader.setFloat("_Shininess", brickMaterial.shininess);
 		shader.setFloat("_DiffuseK", brickMaterial.diffuseK);
@@ -153,10 +175,13 @@ int main() {
 		//TODO: Render point lights
 		lightShader.use();
 		lightShader.setMat4("_ViewProjection", camera.ProjectionMatrix()* camera.ViewMatrix());
-		lightShader.setVec3("_Color", lights[0].color);
-		
-		lightShader.setMat4("_Model", lightTransforms[0].getModelMatrix());
-		sphereMesh.draw();
+
+		for (int i = 0; i < numLights; i++)
+		{
+			lightShader.setVec3("_Color", lights[i].color);
+			lightShader.setMat4("_Model", lightTransforms[i].getModelMatrix());
+			sphereMesh.draw();
+		}
 
 		//Render UI
 		{
@@ -165,6 +190,7 @@ int main() {
 			ImGui::NewFrame();
 
 			ImGui::Begin("Settings");
+			ImGui::ColorEdit3("BG color", &bgColor.x);
 			if (ImGui::CollapsingHeader("Camera")) {
 				ImGui::DragFloat3("Position", &camera.position.x, 0.1f);
 				ImGui::DragFloat3("Target", &camera.target.x, 0.1f);
@@ -184,7 +210,30 @@ int main() {
 				}
 			}
 
-			ImGui::ColorEdit3("BG color", &bgColor.x);
+			if (ImGui::CollapsingHeader("Material"))
+			{
+				ImGui::SliderFloat("AmbientK", &brickMaterial.ambientK, 0, 1);
+				ImGui::SliderFloat("DiffuseK", &brickMaterial.diffuseK, 0, 1);
+				ImGui::SliderFloat("SpecularK", &brickMaterial.specular, 0, 1);
+				ImGui::SliderFloat("Shininess", &brickMaterial.shininess, 2, 1000);
+			}
+
+			if (ImGui::CollapsingHeader("Lights"))
+			{
+				ImGui::SliderInt("Number Lights", &numLights, 0, 4);
+
+				for (int i = 0; i < numLights; i++)
+				{
+					ImGui::PushID(i);
+					if (ImGui::CollapsingHeader(("Light " + std::to_string(i)).c_str()))
+					{
+						ImGui::DragFloat3("Position", &lights[i].position.x, 0.05f);
+						ImGui::DragFloat3("Color", &lights[i].color.x, 0.01f, 0, 1);
+					}
+					ImGui::PopID();
+				}
+			}
+
 			ImGui::End();
 			
 			ImGui::Render();

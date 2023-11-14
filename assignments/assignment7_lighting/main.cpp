@@ -150,7 +150,7 @@ int main() {
 		{
 			shader.setVec3("_Lights[" + std::to_string(i) + "].position", lights[i].position);
 
-			if (i <= numLights) shader.setVec3("_Lights[" + std::to_string(i) + "].color", lights[i].color);
+			if (i < numLights) shader.setVec3("_Lights[" + std::to_string(i) + "].color", lights[i].color);
 			else shader.setVec3("_Lights[" + std::to_string(i) + "].color", ew::Vec3(0,0,0));
 		}
 
@@ -220,7 +220,7 @@ int main() {
 
 			if (ImGui::CollapsingHeader("Lights"))
 			{
-				ImGui::SliderInt("Number Lights", &numLights, 0, 4);
+				ImGui::SliderInt("Number Lights", &numLights, 1, 4);
 
 				for (int i = 0; i < numLights; i++)
 				{
@@ -228,7 +228,7 @@ int main() {
 					if (ImGui::CollapsingHeader(("Light " + std::to_string(i)).c_str()))
 					{
 						ImGui::DragFloat3("Position", &lights[i].position.x, 0.05f);
-						ImGui::DragFloat3("Color", &lights[i].color.x, 0.01f, 0, 1);
+						ImGui::ColorPicker3("Color", &lights[i].color.x, 0.01f);
 					}
 					ImGui::PopID();
 				}

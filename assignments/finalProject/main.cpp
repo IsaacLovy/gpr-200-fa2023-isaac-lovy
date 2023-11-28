@@ -15,6 +15,8 @@
 #include <ew/camera.h>
 #include <ew/cameraController.h>
 
+#include"ILGL/procGen.h"
+
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void resetCamera(ew::Camera& camera, ew::CameraController& cameraController);
 
@@ -77,20 +79,14 @@ int main() {
 
 	ew::Shader lightShader("assets/unlit.vert", "assets/unlit.frag");
 
-	//Create cube
-	ew::Mesh cubeMesh(ew::createCube(1.0f));
-	ew::Mesh planeMesh(ew::createPlane(5.0f, 5.0f, 10));
-	ew::Mesh sphereMesh(ew::createSphere(0.5f, 64));
-	ew::Mesh cylinderMesh(ew::createCylinder(0.5f, 1.0f, 32));
+	ew::Mesh planeMesh(ilgl::createPlane(5.0f, 5.0f, 10));
+	ew::Mesh sphereMesh(ilgl::createSphere(0.5f, 64));
 
 	//Initialize transforms
-	ew::Transform cubeTransform;
 	ew::Transform planeTransform;
 	ew::Transform sphereTransform;
-	ew::Transform cylinderTransform;
 	planeTransform.position = ew::Vec3(0, -1.0, 0);
 	sphereTransform.position = ew::Vec3(-1.5f, 0.0f, 0.0f);
-	cylinderTransform.position = ew::Vec3(1.5f, 0.0f, 0.0f);
 
 	Material brickMaterial;
 	brickMaterial.ambientK = 0.05f;
@@ -159,19 +155,12 @@ int main() {
 		shader.setFloat("_SpecularK", brickMaterial.specular);
 		shader.setFloat("_AmbientK", brickMaterial.ambientK);
 
-		//Draw shapes
-		shader.setMat4("_Model", cubeTransform.getModelMatrix());
-		cubeMesh.draw();
-
 		shader.setMat4("_Model", planeTransform.getModelMatrix());
 		planeMesh.draw();
 
 		shader.setMat4("_Model", sphereTransform.getModelMatrix());
 		sphereMesh.draw();
-
-		shader.setMat4("_Model", cylinderTransform.getModelMatrix());
-		cylinderMesh.draw();
-
+		
 		//TODO: Render point lights
 		lightShader.use();
 		lightShader.setMat4("_ViewProjection", camera.ProjectionMatrix()* camera.ViewMatrix());

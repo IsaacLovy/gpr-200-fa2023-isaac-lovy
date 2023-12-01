@@ -5,6 +5,7 @@ in Surface{
 	vec2 UV;
 	vec3 WorldPosition;
 	vec3 WorldNormal;
+	mat3 TBN;
 }fs_in;
 
 struct Light
@@ -21,9 +22,13 @@ uniform float _SpecularK;
 uniform float _AmbientK;
 
 uniform sampler2D _Texture;
+uniform sampler2D _NormalTex;
 
 void main(){
 	vec3 normal = normalize(fs_in.WorldNormal);
+	normal = texture(_NormalTex, fs_in.UV).rgb;
+	normal = normal * 2.0 - 1.0;
+	normal = normalize (fs_in.TBN * normal);
 	vec4 intensity = vec4(0,0,0,1.0);
 	for(int i = 0; i < MAX_LIGHTS; i ++)
 	{
@@ -39,5 +44,6 @@ void main(){
 
 		intensity += vec4((diffuseLightI + specLightI + ambientI), 1.0);
 	}
-	FragColor = intensity * texture(_Texture,fs_in.UV);
+	FragColor = vec4(normal.x, normal.y, normal.z, 1.0f);
+	//FragColor = intensity * texture(_Texture,fs_in.UV);
 }

@@ -1,19 +1,25 @@
-#pragma once
-#include "ewMath/ewMath.h"
+/*
 
-namespace ew {
+	Authors: Henry Foley & Isaac Lovy
+	Base Code: Eric Winebrenner
+
+*/
+
+#pragma once
+#include "../ew/ewMath/ewMath.h"
+
+namespace ilgl {
 	struct Vertex {
 		ew::Vec3 pos;
 		ew::Vec3 normal;
 		ew::Vec2 uv;
+		ew::Vec3 tangent;
+		ew::Vec3 bitangent;
 	};
 
 	struct MeshData {
 		std::vector<Vertex> vertices;
 		std::vector<unsigned int> indices;
-		std::vector<Vec3> tangents;
-		std::vector<Vec3> biTangents;
-
 	};
 
 	enum class DrawMode {

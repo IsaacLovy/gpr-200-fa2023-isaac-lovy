@@ -1,9 +1,14 @@
+/*
+
+	Authors: Henry Foley & Isaac Lovy
+	Base Code: Eric Winebrenner
+
+*/
 
 #include "mesh.h"
-#include "ewMath/ewMath.h"
-#include "external/glad.h"
+#include "../ew/external/glad.h"
 
-namespace ew {
+namespace ilgl {
 	Mesh::Mesh(const MeshData& meshData)
 	{
 		load(meshData);
@@ -51,7 +56,7 @@ namespace ew {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
-	void Mesh::draw(ew::DrawMode drawMode) const
+	void Mesh::draw(ilgl::DrawMode drawMode) const
 	{
 		glBindVertexArray(m_vao);
 		if (drawMode == DrawMode::TRIANGLES) {

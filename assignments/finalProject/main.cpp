@@ -10,12 +10,11 @@
 
 #include <ew/shader.h>
 #include <ew/texture.h>
-#include <ew/procGen.h>
 #include <ew/transform.h>
 #include <ew/camera.h>
 #include <ew/cameraController.h>
 
-#include"ILGL/procGen.h"
+#include "ILGL/procGen.h"
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void resetCamera(ew::Camera& camera, ew::CameraController& cameraController);
@@ -75,12 +74,13 @@ int main() {
 	glEnable(GL_DEPTH_TEST);
 
 	ew::Shader shader("assets/defaultLit.vert", "assets/defaultLit.frag");
-	unsigned int brickTexture = ew::loadTexture("assets/brick_color.jpg",GL_REPEAT,GL_LINEAR);
+	unsigned int brickTexture = ew::loadTexture("assets/brick_color.jpg", GL_REPEAT, GL_LINEAR);
+	unsigned int normalTexture = ew::loadTexture("assets/normalTest.jpg", GL_REPEAT, GL_LINEAR);
 
 	ew::Shader lightShader("assets/unlit.vert", "assets/unlit.frag");
 
-	ew::Mesh planeMesh(ilgl::createPlane(5.0f, 5.0f, 10));
-	ew::Mesh sphereMesh(ilgl::createSphere(0.5f, 64));
+	ilgl::Mesh planeMesh(ilgl::createPlane(5.0f, 5.0f, 10));
+	ilgl::Mesh sphereMesh(ilgl::createSphere(0.5f, 64));
 
 	//Initialize transforms
 	ew::Transform planeTransform;
@@ -139,6 +139,8 @@ int main() {
 		shader.use();
 		glBindTexture(GL_TEXTURE_2D, brickTexture);
 		shader.setInt("_Texture", 0);
+		glBindTexture(GL_TEXTURE_2D, normalTexture);
+		shader.setInt("_NormalTex", 1);
 		shader.setMat4("_ViewProjection", camera.ProjectionMatrix() * camera.ViewMatrix());
 		shader.setVec3("_CameraPos", camera.position);
 

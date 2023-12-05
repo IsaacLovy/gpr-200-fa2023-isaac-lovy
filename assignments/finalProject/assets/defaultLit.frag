@@ -44,6 +44,7 @@ void main(){
 
 		intensity += vec4((diffuseLightI + specLightI + ambientI), 1.0);
 	}
-	FragColor = vec4(normal.x, normal.y, normal.z, 1.0f);
-	//FragColor = intensity * texture(_Texture,fs_in.UV);
+	//FragColor = vec4(normal.x, normal.y, normal.z, 1.0f);
+	FragColor = intensity * texture(_Texture,fs_in.UV);
+	//FragColor = intensity * vec4(0,1,0,1);
 }

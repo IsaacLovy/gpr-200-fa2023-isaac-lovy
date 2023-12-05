@@ -10,20 +10,6 @@ ilgl::MeshData ilgl::createPlane(float width, float height, int subdivisions)
 
 	int columns = subdivisions + 1;
 
-	//ew::Vec3 pos1 = (-width, height, 0.0f);
-	//ew::Vec3 pos2 = (-width, -height, 0.0f);
-	//ew::Vec3 pos3 = (width, -height, 0.0f);
-
-	//ew::Vec3 edge1 = pos2 - pos1;
-	//ew::Vec3 edge2 = pos3 - pos1;
-
-	//ew::Vec2 uv1(0.0f, 1.0f);
-	//ew::Vec2 uv2(0.0f, 0.0f);
-	//ew::Vec2 uv3(1.0f, 0.0f);
-
-	//ew::Vec2 deltaUV1 = uv2 - uv1;
-	//ew::Vec2 deltaUV2 = uv3 - uv1;
-
 	for (int row = 0; row <= subdivisions; row++)
 	{
 		for (int col = 0; col <= subdivisions; col ++)
@@ -52,19 +38,6 @@ ilgl::MeshData ilgl::createPlane(float width, float height, int subdivisions)
 			v.bitangent = bitangent;
 
 			mesh.vertices.push_back(v);
-
-			//float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
-			//
-			//ew::Vec3 tangent1 = ew::Vec3();
-			//ew::Vec3 bitangent1 = ew::Vec3();
-
-			//tangent1.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
-			//tangent1.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
-			//tangent1.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
-
-			//bitangent1.x = f * (-deltaUV2.y * edge1.x + deltaUV1.y * edge2.x);
-			//bitangent1.y = f * (-deltaUV2.y * edge1.y + deltaUV1.y * edge2.y);
-			//bitangent1.z = f * (-deltaUV2.y * edge1.z + deltaUV1.y * edge2.z);
 
 			//Indices
 			if (row != subdivisions && col != subdivisions) 

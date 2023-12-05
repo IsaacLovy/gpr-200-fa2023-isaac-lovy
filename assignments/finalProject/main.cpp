@@ -40,6 +40,7 @@ struct Material
 	float diffuseK;
 	float specular;
 	float shininess;
+	float normalIntensity;
 };
 
 int main() {
@@ -74,8 +75,8 @@ int main() {
 	glEnable(GL_DEPTH_TEST);
 
 	ew::Shader shader("assets/defaultLit.vert", "assets/defaultLit.frag");
-	unsigned int brickTexture = ew::loadTexture("assets/brick_color.jpg", GL_REPEAT, GL_LINEAR);
-	unsigned int normalTexture = ew::loadTexture("assets/normalTest.jpg", GL_REPEAT, GL_LINEAR);
+	unsigned int brickTexture = ew::loadTexture("assets/Color.png", GL_REPEAT, GL_LINEAR);
+	unsigned int normalTexture = ew::loadTexture("assets/Normal.jpg", GL_REPEAT, GL_LINEAR);
 
 	ew::Shader lightShader("assets/unlit.vert", "assets/unlit.frag");
 
@@ -90,9 +91,10 @@ int main() {
 
 	Material brickMaterial;
 	brickMaterial.ambientK = 0.05f;
-	brickMaterial.diffuseK = 0.75f;
+	brickMaterial.diffuseK = 0.35f;
 	brickMaterial.specular = 0.2f;
 	brickMaterial.shininess = 16;
+	brickMaterial.normalIntensity = 1.0f;
 
 	Light lights[4];
 	ew::Transform lightTransforms[4];
@@ -158,6 +160,7 @@ int main() {
 		shader.setFloat("_DiffuseK", brickMaterial.diffuseK);
 		shader.setFloat("_SpecularK", brickMaterial.specular);
 		shader.setFloat("_AmbientK", brickMaterial.ambientK);
+		shader.setFloat("_NormalIntensity", brickMaterial.normalIntensity);
 
 		shader.setMat4("_Model", planeTransform.getModelMatrix());
 		planeMesh.draw();
@@ -209,6 +212,7 @@ int main() {
 				ImGui::SliderFloat("DiffuseK", &brickMaterial.diffuseK, 0, 1);
 				ImGui::SliderFloat("SpecularK", &brickMaterial.specular, 0, 1);
 				ImGui::SliderFloat("Shininess", &brickMaterial.shininess, 2, 1000);
+				ImGui::SliderFloat("Normal Intensity", &brickMaterial.normalIntensity, -6, 5);
 			}
 
 			if (ImGui::CollapsingHeader("Lights"))

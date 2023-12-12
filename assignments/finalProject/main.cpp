@@ -41,6 +41,7 @@ struct Material
 	float specular;
 	float shininess;
 	float normalIntensity;
+	float heightScale;
 };
 
 int main() {
@@ -77,6 +78,7 @@ int main() {
 	ew::Shader shader("assets/defaultLit.vert", "assets/defaultLit.frag");
 	unsigned int brickTexture = ew::loadTexture("assets/Color.png", GL_REPEAT, GL_LINEAR);
 	unsigned int normalTexture = ew::loadTexture("assets/Normal.jpg", GL_REPEAT, GL_LINEAR);
+	unsigned int heightMapTexture = ew::loadTexture("assets/Displacement.png", GL_REPEAT, GL_LINEAR);
 
 	ew::Shader lightShader("assets/unlit.vert", "assets/unlit.frag");
 
@@ -95,6 +97,7 @@ int main() {
 	brickMaterial.specular = 0.2f;
 	brickMaterial.shininess = 16;
 	brickMaterial.normalIntensity = 1.0f;
+	brickMaterial.heightScale = 0.1f;
 
 	Light lights[4];
 	ew::Transform lightTransforms[4];
@@ -142,9 +145,15 @@ int main() {
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, brickTexture);
 		shader.setInt("_Texture", 0);
+		
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, normalTexture);
 		shader.setInt("_NormalTex", 1);
+
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, heightMapTexture);
+		shader.setInt("_DepthMap", 2);
+
 		shader.setMat4("_ViewProjection", camera.ProjectionMatrix() * camera.ViewMatrix());
 		shader.setVec3("_CameraPos", camera.position);
 
@@ -161,6 +170,7 @@ int main() {
 		shader.setFloat("_SpecularK", brickMaterial.specular);
 		shader.setFloat("_AmbientK", brickMaterial.ambientK);
 		shader.setFloat("_NormalIntensity", brickMaterial.normalIntensity);
+		shader.setFloat("_HeightScale", brickMaterial.heightScale);
 
 		shader.setMat4("_Model", planeTransform.getModelMatrix());
 		planeMesh.draw();
@@ -213,6 +223,7 @@ int main() {
 				ImGui::SliderFloat("SpecularK", &brickMaterial.specular, 0, 1);
 				ImGui::SliderFloat("Shininess", &brickMaterial.shininess, 2, 1000);
 				ImGui::SliderFloat("Normal Intensity", &brickMaterial.normalIntensity, -6, 5);
+				ImGui::SliderFloat("Height Scale", &brickMaterial.heightScale, 0, 0.5);
 			}
 
 			if (ImGui::CollapsingHeader("Lights"))

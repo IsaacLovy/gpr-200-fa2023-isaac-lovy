@@ -28,6 +28,7 @@ ilgl::MeshData ilgl::createPlane(float width, float height, int subdivisions)
 			//Normals
 			v.normal = ew::Vec3(0, 1, 0);
 
+			//Tangents & Binormals
 			ew::Vec3 tangent = ew::Vec3();
 			ew::Vec3 bitangent = ew::Vec3();
 
@@ -143,6 +144,17 @@ ilgl::MeshData ilgl::createSphere(float radius, int numSegments)
 			v.uv.x = theta / (2 * ew::PI);
 			v.uv.y = 1 - (phi / ew::PI);
 
+
+			//Tangents & Binormals
+			ew::Vec3 tangent = ew::Vec3();
+			ew::Vec3 bitangent = ew::Vec3();
+
+			tangent = ew::Vec3(-sin(theta), 0, cos(theta));
+			bitangent = ew::Normalize(ew::Cross(v.normal, tangent));
+
+			v.tangent = tangent;
+			v.bitangent = bitangent;
+
 			mesh.vertices.push_back(v);
 		}
 	}
@@ -199,17 +211,37 @@ ilgl::MeshData ilgl::createCylinder(float height, float radius, int numSegments)
 	topVertex.uv = ew::Vec2(0.5f, 0.5f);
 	topVertex.normal = ew::Vec3(0, 1, 0);
 
+	//Tangents & Binormals for top vert
+	ew::Vec3 topTangent = ew::Vec3();
+	ew::Vec3 topBitangent = ew::Vec3();
+
+	topTangent = ew::Normalize(ew::Cross(topVertex.normal, ew::Vec3(1, 0, 0)));
+	topBitangent = ew::Normalize(ew::Cross(topVertex.normal, topTangent));
+
+	topVertex.tangent = topTangent;
+	topVertex.bitangent = topBitangent;
+
 	mesh.vertices.push_back(topVertex);
 
 	int topUpStart = createCylinderRing(height, topY, radius, numSegments, &mesh, true, ew::Vec3(0, 1, 0));
-	int topSideStart = createCylinderRing(height, topY, radius, numSegments, &mesh, false);
-	int bottomSideStart = createCylinderRing(height, bottomY, radius, numSegments, &mesh, false);
+	int topSideStart = createCylinderRing(height, topY, radius, numSegments, &mesh, false, ew::Vec3(0,1,0));
+	int bottomSideStart = createCylinderRing(height, bottomY, radius, numSegments, &mesh, false, ew::Vec3(0, 1, 0));
 	int bottomDownStart = createCylinderRing(height, bottomY, radius, numSegments, &mesh, true, ew::Vec3(0, -1, 0));
 
 	ilgl::Vertex bottomVertex;
 	bottomVertex.pos = ew::Vec3(0, bottomY, 0);
 	bottomVertex.uv = ew::Vec2(0.5f, 0.5f);
 	bottomVertex.normal = ew::Vec3(0, -1, 0);
+
+	//Tangents & Binormals for bottom vert
+	ew::Vec3 bttmTangent = ew::Vec3();
+	ew::Vec3 bttmBitangent = ew::Vec3();
+
+	bttmTangent = ew::Normalize(ew::Cross(bottomVertex.normal, ew::Vec3(-1, 0, 0)));
+	bttmBitangent = ew::Normalize(ew::Cross(bottomVertex.normal, bttmTangent));
+
+	bottomVertex.tangent = bttmTangent;
+	bottomVertex.bitangent = bttmBitangent;
 
 	mesh.vertices.push_back(bottomVertex);
 	
@@ -263,12 +295,34 @@ int ilgl::createCylinderRing(float height, float yPos, float radius, int numSegm
 			v.normal = normalDir;
 			v.uv.x = cos(theta) * 0.5 + 0.5;
 			v.uv.y = sin(theta) * 0.5 + 0.5;
+
+			//Tangents & Binormals
+			ew::Vec3 tangent = ew::Vec3();
+			ew::Vec3 bitangent = ew::Vec3();
+
+			tangent = ew::Normalize(ew::Cross(v.normal, ew::Normalize(v.pos - ew::Vec3(0, yPos, 0))));
+			bitangent = ew::Normalize(ew::Cross(v.normal, tangent));
+
+			v.tangent = tangent;
+			v.bitangent = bitangent;
+
 		}
 		else
 		{
 			v.normal = ew::Normalize(v.pos - ew::Vec3(0, yPos, 0));
 			v.uv.x = (float)i / (float)numSegments;
 			v.uv.y = (yPos) / height;
+
+			//Tangents & Binormals
+			ew::Vec3 tangent = ew::Vec3();
+			ew::Vec3 bitangent = ew::Vec3();
+
+			tangent = ew::Normalize(ew::Cross(v.normal, ew::Vec3(normalDir)));
+			bitangent = ew::Normalize(ew::Cross(v.normal, tangent));
+
+			v.tangent = tangent;
+			v.bitangent = bitangent;
+
 		}
 
 		mesh->vertices.push_back(v);

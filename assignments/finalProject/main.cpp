@@ -42,7 +42,34 @@ struct Material
 	float shininess;
 	float normalIntensity;
 	float heightScale;
+	bool parallaxClipping;
 };
+
+Material resetBrickMaterial()
+{
+	Material mat;
+	mat.ambientK = 0.05f;
+	mat.diffuseK = 0.35f;
+	mat.specular = 0.2f;
+	mat.shininess = 16;
+	mat.normalIntensity = 1.0f;
+	mat.heightScale = 0.1f;
+	mat.parallaxClipping = false;
+	return mat;
+}
+
+Material zeroNormalParallax()
+{
+	Material mat;
+	mat.ambientK = 0.05f;
+	mat.diffuseK = 0.35f;
+	mat.specular = 0.2f;
+	mat.shininess = 16;
+	mat.normalIntensity = 0.0f;
+	mat.heightScale = 0.0f;
+	mat.parallaxClipping = false;
+	return mat;
+}
 
 int main() {
 	printf("Initializing...");
@@ -84,20 +111,20 @@ int main() {
 
 	ilgl::Mesh planeMesh(ilgl::createPlane(5.0f, 5.0f, 10));
 	ilgl::Mesh sphereMesh(ilgl::createSphere(0.5f, 64));
+	ilgl::Mesh cylinderMesh(ilgl::createCylinder(1, 0.5f, 32));
 
 	//Initialize transforms
 	ew::Transform planeTransform;
 	ew::Transform sphereTransform;
-	planeTransform.position = ew::Vec3(0, -1.0, 0);
-	sphereTransform.position = ew::Vec3(-1.5f, 0.0f, 0.0f);
+	ew::Transform cylinderTransform;
+	planeTransform.position = ew::Vec3(0, -1.0,0.0f);
+	sphereTransform.position = ew::Vec3(-1.5f, 0.0f, -2.0f);
+	sphereTransform.scale = ew::Vec3(2.0f);
+	cylinderTransform.position = ew::Vec3(6.5f, 0.0f, -2.0f);
+	cylinderTransform.scale = ew::Vec3(2.0f);
 
 	Material brickMaterial;
-	brickMaterial.ambientK = 0.05f;
-	brickMaterial.diffuseK = 0.35f;
-	brickMaterial.specular = 0.2f;
-	brickMaterial.shininess = 16;
-	brickMaterial.normalIntensity = 1.0f;
-	brickMaterial.heightScale = 0.1f;
+	brickMaterial = resetBrickMaterial();
 
 	Light lights[4];
 	ew::Transform lightTransforms[4];
@@ -124,7 +151,7 @@ int main() {
 	lightTransforms[3].position = ew::Vec3(5, 5, -5);
 	lightTransforms[3].scale = ew::Vec3(0.3f, 0.3f, 0.3f);
 
-	resetCamera(camera,cameraController);
+	resetCamera(camera, cameraController);
 
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
@@ -171,12 +198,16 @@ int main() {
 		shader.setFloat("_AmbientK", brickMaterial.ambientK);
 		shader.setFloat("_NormalIntensity", brickMaterial.normalIntensity);
 		shader.setFloat("_HeightScale", brickMaterial.heightScale);
+		shader.setInt("_ParallaxClipping", (brickMaterial.parallaxClipping ? 1 : 0));
 
 		shader.setMat4("_Model", planeTransform.getModelMatrix());
 		planeMesh.draw();
 
 		shader.setMat4("_Model", sphereTransform.getModelMatrix());
 		sphereMesh.draw();
+
+		shader.setMat4("_Model", cylinderTransform.getModelMatrix());
+		cylinderMesh.draw();
 		
 		//TODO: Render point lights
 		lightShader.use();
@@ -224,6 +255,15 @@ int main() {
 				ImGui::SliderFloat("Shininess", &brickMaterial.shininess, 2, 1000);
 				ImGui::SliderFloat("Normal Intensity", &brickMaterial.normalIntensity, -6, 5);
 				ImGui::SliderFloat("Height Scale", &brickMaterial.heightScale, 0, 0.5);
+				ImGui::Checkbox("Parallax Clipping", &brickMaterial.parallaxClipping);
+				if (ImGui::Button("Reset Material"))
+				{
+					brickMaterial = resetBrickMaterial();
+				}
+				if (ImGui::Button("Reset Normals & Height"))
+				{
+					brickMaterial = zeroNormalParallax();
+				}
 			}
 
 			if (ImGui::CollapsingHeader("Lights"))

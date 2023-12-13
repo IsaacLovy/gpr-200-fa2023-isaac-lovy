@@ -27,10 +27,10 @@ uniform sampler2D _Texture;
 uniform sampler2D _NormalTex;
 uniform sampler2D _DepthMap;
 
+uniform int _ParallaxClipping;
+
 vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
 {
-	
-	
 	//Number of Depth Layers
 	const float minLayers = 8.0;
 	const float maxLayers = 32.0;
@@ -45,21 +45,18 @@ vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
 
 	vec2  currentTexCoords     = texCoords;
 	float currentDepthMapValue = texture(_DepthMap, currentTexCoords).r;
-	//Invert Height Map
-	currentDepthMapValue = 1.0 - currentDepthMapValue;
 	
 	while(currentLayerDepth < currentDepthMapValue)
 	{
 		currentTexCoords -= deltaTexCoords;
-		currentDepthMapValue = texture(_DepthMap, currentTexCoords).r; 
-		currentDepthMapValue = 1.0 - currentDepthMapValue;
+		currentDepthMapValue = texture(_DepthMap, currentTexCoords).r;
 		currentLayerDepth += layerDepth;
 	}
 	
 	vec2 prevTexCoords = currentTexCoords + deltaTexCoords;
 
 	float afterDepth = currentDepthMapValue - currentLayerDepth;
-	float beforeDepth = (1.0 - texture(_DepthMap, prevTexCoords).r) - currentLayerDepth +layerDepth;
+	float beforeDepth = texture(_DepthMap, prevTexCoords).r - currentLayerDepth +layerDepth;
 
 	float weight = afterDepth / (afterDepth -beforeDepth);
 	vec2 finalTexCoords = prevTexCoords * weight +currentTexCoords * (1.0- weight);
@@ -78,8 +75,10 @@ void main(){
 
 	//Parallax UVs
 	vec2 texCoords = ParallaxMapping(fs_in.UV, tanViewDir);
-	if(texCoords.x > 1.0 || texCoords.y > 1.0 || texCoords.x < 0.0 || texCoords.y < 0.0)
-		discard;
+
+	if (_ParallaxClipping == 1)
+		if(texCoords.x > 1.0 || texCoords.y > 1.0 || texCoords.x < 0.0 || texCoords.y < 0.0)
+			discard;
 
 	//Normals
 	vec3 normal = texture(_NormalTex, texCoords).rgb * 2.0 - 1.0;

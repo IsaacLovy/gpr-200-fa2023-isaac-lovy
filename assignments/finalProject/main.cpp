@@ -1,3 +1,9 @@
+/*
+
+	Authors: Henry Foley & Isaac Lovy
+	Base Code: Isaac Lovy
+
+*/
 #include <stdio.h>
 #include <math.h>
 

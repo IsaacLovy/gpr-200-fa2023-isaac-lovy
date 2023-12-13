@@ -1,3 +1,9 @@
+/*
+
+	Authors: Henry Foley & Isaac Lovy
+	Base Code: Isaac Lovy
+
+*/
 #include "procGen.h"
 #include <list>
 
